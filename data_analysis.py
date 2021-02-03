@@ -3,25 +3,49 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-dataFrame = pd.read_csv('data_predicted.csv')
-#clean undefined values
-data = dataFrame[dataFrame.prob_stop != 'undefined']
-#we lose almost half of our rows
-print(data.shape)
+#to see all data columns in terminal
+pd.set_option('display.max_columns',36)
 
+#help methods for data analysis:
+#print dataset information - size, variable range etc
+#useful to see IQR, data range and various statistics
 def printData(dataFrame):
     print(dataFrame.info())
     print(dataFrame.shape)
     print(dataFrame.describe())
 
+#plots the correlation matrix for a given dataframe
 def plotCorr(dataFrame):
     plt.figure(figsize=(36,36))
     sns.heatmap(dataFrame.corr(), annot=True)
     plt.show()
+#removes junk data - rows with undefined values
+def cleanData(dataFrame):
+    cleaned = dataFrame[dataFrame.prob_stop != 'undefined']
+    return cleaned
 
-printData(data)
-plotCorr(data)
+#read data and clean
+dataFrameInit = pd.read_csv('data_predicted.csv')
 
+dataFrame = cleanData(dataFrameInit)
+
+printData(dataFrame)
+
+#plot advertisers
+#dataFrame['traffic_source_name'].value_counts().plot.bar()
+#plt.show()
+
+#plot top X campaign by id
+dataFrame['campaign_id'].value_counts().head(30).plot.bar()
+plt.show()
+#plot with relative proportions
+#(dataFrame['traffic_source_name'].value_counts().head(10) / len(dataFrame)).plot.bar()
+#plt.show()
+
+#dataFrame['clicks'].value_counts().sort_index().plot.bar()
+#plt.show()
+
+print(dataFrame.shape)
 
 
 
