@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+#emanueltepes branch first commit
 dataFrame = pd.read_csv('data_predicted.csv')
 #clean undefined values
 data = dataFrame[dataFrame.prob_stop != 'undefined']
