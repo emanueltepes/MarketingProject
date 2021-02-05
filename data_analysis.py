@@ -24,11 +24,11 @@ def cleanData(dataFrame):
     cleaned = dataFrame[dataFrame.prob_stop != 'undefined']
     return cleaned
 
+
 #read data and clean
-dataFrameInit = pd.read_csv('data_predicted.csv')
+dataFrameInit = pd.read_csv('data_cleaned.csv')
 
 dataFrame = cleanData(dataFrameInit)
-
 printData(dataFrame)
 
 #plot advertisers
@@ -36,17 +36,19 @@ printData(dataFrame)
 #plt.show()
 
 #plot top X campaign by id
-dataFrame['campaign_id'].value_counts().head(30).plot.bar()
-plt.show()
+#dataFrame['campaign_id'].value_counts().head(30).plot.bar()
+#plt.show()
 #plot with relative proportions
 #(dataFrame['traffic_source_name'].value_counts().head(10) / len(dataFrame)).plot.bar()
 #plt.show()
-
 #dataFrame['clicks'].value_counts().sort_index().plot.bar()
 #plt.show()
 
 print(dataFrame.shape)
-
-
+numericalVariablesColumnsList = ["campaign_payout", "clicks", "conversions", "payout", "net", "TR.ROI", "EPC", "train_clicks"]
+for column in numericalVariablesColumnsList:
+    plt.boxplot(dataFrame[column])
+    plt.title(column)
+    plt.show()
 
 
