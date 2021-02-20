@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
+from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn import preprocessing, metrics, tree
+from sklearn.utils import resample
+from imblearn.over_sampling import SMOTE, ADASYN
+from imblearn.under_sampling import RandomUnderSampler
+
+
 #to see all data columns in terminal
 pd.set_option('display.max_columns',36)
 
@@ -21,33 +30,55 @@ def plotCorr(dataFrame):
     sns.heatmap(dataFrame.corr(), annot=True)
     plt.show()
 
-#removes junk data - rows with undefined values
-def cleanData(dataFrame):
-    cleaned = dataFrame[dataFrame.prob_stop != 'undefined']
-    dataFrame.to_csv('cleanedData.csv')
-    return cleaned
 
-def boxplotColumns(ColumnsNamesList, df):
-    for column in ColumnsNamesList:
+def boxplotColumns(df):
+    numericalVariablesColumnsList = ["campaign_payout", "clicks", "conversions", "payout", "net", "TR.ROI", "EPC"]
+    for column in numericalVariablesColumnsList:
         plt.boxplot(df[column])
         plt.title(column)
         plt.show()
 
-#Trying to remove outliers from numerical variables using z-score
-def removeOutliers(dataFrame, zScoreTreshold):
-    print(dataFrame.shape)
-    numericalVariablesColumnsList = ["campaign_payout", "clicks", "conversions", "payout", "net", "TR.ROI", "EPC", "train_clicks"]
-    z = np.abs(stats.zscore(dataFrame[numericalVariablesColumnsList]))
-    dataFrame_o = dataFrame[(z < zScoreTreshold).all(axis=1)]
-    print(dataFrame_o.shape)
-    return dataFrame_o
-
-#read dataset with no "undefined values"
-dataFrame = pd.read_csv('cleanedData.csv')
-printData(dataFrame)
-
-#clean dataset from numerical outliers using z-score and saves to new csv
-dataFrame_optimised = removeOutliers(dataFrame,3)
-dataFrame_optimised.to_csv('cleanerData.csv')
 
 
+
+dataFrame = pd.read_csv("cleanerData.csv")
+
+#plotCorr(dataFrame)
+#printData(dataFrame_optimised)
+#boxplotColumns(dataFrame_optimised)
+
+X = dataFrame[['train_clicks', 'train_npc', 'train_roi', 'train_ctr', 'train_payout', 'lp_clicks',
+               'EPC', 'impressions', 'net', 'TR.ROI', 'lpctr']]
+y = dataFrame[['prediction_class_id']]
+
+#not balanced
+print(y.value_counts())
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model_dtree = tree.DecisionTreeClassifier()
+X_res, y_res = X_train, y_train
+
+
+
+
+#decision tree model
+model_dtree.fit(X_res, y_res)
+y_pred = model_dtree.predict(X_test)
+confusion_matrix = confusion_matrix(y_test, y_pred)
+print(confusion_matrix)
+print(classification_report(y_test,y_pred))
+print(y_test)
+print(y_pred)
+# predictions = pd.DataFrame({'true_y_values':y_test,'predicted_y_values':y_pred})
+# print(predictions)
+
+
+
+#logistic regression model
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# model_lreg = LogisticRegression()
+# model_lreg.fit(X_res, y_res)
+# y_pred = model_lreg.predict(X_test)
+#print(confusion_matrix(y_test, y_pred))
+#print(classification_report(y_test, y_pred))
